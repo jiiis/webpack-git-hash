@@ -50,7 +50,7 @@ function WebpackGitHash(opts) {
   this.updated = {};
   this.deletedFiles = [];
   this.stats = null;
-};
+}
 
 /**
  * Test if a file can be deleted, then delete it
@@ -63,7 +63,7 @@ WebpackGitHash.prototype.deleteObsoleteFile = function(filename) {
     console.log('Deleted ' + filename);
     this.deletedFiles.push(filename);
   }
-}
+};
 
 /**
  * Loop through files after reading folder contents
@@ -74,7 +74,7 @@ WebpackGitHash.prototype.loopFiles = function(err, contents) {
   }
   contents.forEach(this.deleteObsoleteFile);
   this.doCallback();
-}
+};
 
 /**
  * Callback function if one exists
@@ -85,7 +85,7 @@ WebpackGitHash.prototype.doCallback = function(stats) {
   if (typeof this.callback === 'function') {
     this.callback(this.skipHash, this.deletedFiles, stats);
   }
-}
+};
 
 /**
  * Delete static chunk JS files containing a hash other than the one we want to skip
@@ -97,7 +97,7 @@ WebpackGitHash.prototype.cleanupFiles = function(stats) {
     this.stats = stats;
   }
   fs.readdir(this.outputPath, this.loopFiles);
-}
+};
 
 /**
  * Get hash of last git commit
@@ -105,7 +105,7 @@ WebpackGitHash.prototype.cleanupFiles = function(stats) {
 WebpackGitHash.prototype.getSkipHash = function(length) {
   var skipHash = child_process.execSync('git rev-parse --short=' + length + ' HEAD', { encoding: 'utf8' });
   return skipHash.trim();
-}
+};
 
 /**
  * Turn processed filename into regex for later cleanup
@@ -128,7 +128,7 @@ WebpackGitHash.prototype.buildRegex = function(template, hash) {
   regex = regex.replace(hash, '(?!' + hash + ')\\w{' + hash.length + '}');
 
   return new RegExp(regex);
-}
+};
 
 /**
  * Atttempt to replace the placeholder string in a output string
@@ -140,7 +140,7 @@ WebpackGitHash.prototype.doPlaceholder = function(key, original) {
   }
   this.regex[key] = this.regex[key] || this.buildRegex(newString, this.skipHash);
   return newString;
-}
+};
 
 /**
  * Hook into webpack plugin architecture
@@ -170,8 +170,12 @@ WebpackGitHash.prototype.apply = function(compiler) {
     (this.updated.filename || this.updated.chunkFilename)) {
     compiler.plugin('done', this.cleanupFiles);
   } else {
-    compiler.plugin('done', this.doCallback);
+    var webpackGitHash = this;
+
+    compiler.plugin('done', function(stats) {
+        webpackGitHash.doCallback(stats);
+    });
   }
-}
+};
 
 module.exports = WebpackGitHash;

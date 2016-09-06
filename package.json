@@ -1,7 +1,7 @@
 {
-  "name": "webpack-git-hash",
+  "name": "jiiis-webpack-git-hash",
   "version": "1.0.0",
-  "description": "Webpack plugin for versioning bundles and chunks with the hash of the last Git commit",
+  "description": "A fork from https://github.com/alleyinteractive/webpack-git-hash",
   "main": "index.js",
   "scripts": {
     "test": "mocha --full-trace --check-leaks"
